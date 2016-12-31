@@ -2,22 +2,17 @@ import os
 import time
 
 from slackclient import SlackClient
-from wit import Wit 
 from commands import *
 
+# Gather all exported tokens
 access_token = os.getenv("SERVER_TOKEN")
-
-# starterbot's ID as an environment variable
 BOT_ID = os.environ.get("BOT_ID")
+
 AT_BOT = "<@" + BOT_ID + ">"
 
 # instantiate Slack Clients
 SLACK_TOKEN = os.environ.get('SLACK_BOT_TOKEN')
 slack_client = SlackClient(SLACK_TOKEN)
-
-#Initialize default responses
-default_response = 'Sorry did not catch that :('
-
 
 def handle_command(command, channel):
     """
@@ -25,11 +20,15 @@ def handle_command(command, channel):
         are valid commands. If so, then acts on the commands. If not,
         returns back what it needs for clarification.
     """
-    response = "Not sure what you mean. Use the *" + EXAMPLE_COMMAND + \
-               "* command with numbers, delimited by spaces."
-    if command.startswith(EXAMPLE_COMMAND):
-        response = "Sure...write some more code then I can do that!"
+    response = "Sorry didn't catch that :("
+
+    if command.startswith(DEFAULT_COMMAND):
+        response = greeting()
+
+    elif command.startswith(HELP_COMMAND):
+        response = help()
     
+    # Call the chat.postMessage API and send the response
     slack_client.api_call("chat.postMessage", channel=channel,
                           text=response, as_user=True)
 
@@ -54,7 +53,7 @@ if __name__ == "__main__":
     READ_WEBSOCKET_DELAY = 1 
     
     if slack_client.rtm_connect():
-        print("StarterBot connected and running!")
+        print("chapchap connected and running!")
         while True:
             command, channel = parse_slack_output(slack_client.rtm_read())
             if command and channel:
